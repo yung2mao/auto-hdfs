@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author GrainRain
@@ -32,5 +34,10 @@ public class HDFSFactory {
     @Bean("fileList")
     public List<String> fileList(){
         return new LinkedList<String>();
+    }
+
+    @Bean
+    public ScheduledExecutorService getScheduledExecutorService(){
+        return Executors.newScheduledThreadPool(5);
     }
 }

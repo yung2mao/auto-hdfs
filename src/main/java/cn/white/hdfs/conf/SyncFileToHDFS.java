@@ -26,6 +26,8 @@ public class SyncFileToHDFS {
     @Autowired
     private FileSystem fileSystem;
 
+    private List<String> allLocalFiles = new LinkedList<>();
+
     private Configuration configuration = new Configuration();
 
     //从hadoop获取文件
@@ -62,11 +64,13 @@ public class SyncFileToHDFS {
         if(!localFileExists(localFilePath))
             throw new RuntimeException("路径为>>"+localFilePath+"<<的本地文件不存在");
         //获取在hdfs上的路径
-        String hdfsFilePath = "/"+localFilePath.substring(localPath.length()+1);
+        String hdfsFilePath = localFilePath.substring(localPath.length());
         System.out.println("上传本地文件到hdfs，本地路径为："+localFilePath+"hdfs路径为："+hdfsFilePath);
         if(hdfsFileExists(hdfsFilePath))
             throw new RuntimeException("路径为>>"+hdfsFilePath+"<<的hdfs文件已存在");
         String dirPath = hdfsFilePath.substring(0,hdfsFilePath.lastIndexOf("/"));
+        if (dirPath.length()<1)
+            dirPath = "/";
         //判断hdfs是否存在文件上级目录，不存在则创建后再上传文件
         if(!hdfsFileExists(dirPath))
             this.mkdirs(dirPath);
@@ -78,6 +82,7 @@ public class SyncFileToHDFS {
 
     //删除文件
     public void deleteFile(String localFilePath) throws IOException {
+        System.out.println("开始执行删除文件操作：删除路径为>>"+localFilePath);
         String hdfsFilePath = "/" + localFilePath.substring(localPath.length()+1);
         if(!hdfsFileExists(hdfsFilePath)) {
             System.out.println("不存在的文件：路径为>>"+hdfsFilePath);
@@ -105,17 +110,25 @@ public class SyncFileToHDFS {
     }
 
     //获取本地目录的所有文件
-    public List<String> getAllLocalFile(String localDirPath){
-        List<String> fileList = new LinkedList<>();
+    private List<String> getLocalFiles(String localDirPath){
         File f = new File(localDirPath);
         File[] files = f.listFiles();
         for(File file:files){
             if(!file.isDirectory())
-                fileList.add(file.getPath());
+                allLocalFiles.add(file.getPath());
             else
-                getAllLocalFile(file.getPath());
+                getLocalFiles(file.getPath());
         }
-        return fileList;
+        return allLocalFiles;
     }
 
+    public void clearList(){
+        allLocalFiles.clear();
+    }
+
+    public List<String> getAllLocalFile(String localDirPath){
+        List<String> localFiles = new LinkedList<>(getLocalFiles(localDirPath));
+        this.clearList();
+        return localFiles;
+    }
 }
