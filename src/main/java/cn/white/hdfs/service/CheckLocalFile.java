@@ -2,8 +2,6 @@ package cn.white.hdfs.service;
 
 import cn.white.hdfs.conf.DirPath;
 import cn.white.hdfs.conf.SyncFileToHDFS;
-import org.apache.hadoop.fs.LocatedFileStatus;
-import org.apache.hadoop.fs.RemoteIterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
