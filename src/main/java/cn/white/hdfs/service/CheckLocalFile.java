@@ -9,14 +9,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author GrainRain
  * @date 2020/02/12 20:22
  **/
 @Component
-public class CheckFile extends Thread{
+public class CheckLocalFile extends Thread{
     @Autowired
     private DirPath dirPath;
 
@@ -27,9 +29,10 @@ public class CheckFile extends Thread{
     @Qualifier("fileList")
     private List<String> fileList;
 
-    public void init() throws IOException {
-        CheckHDFSFileWithLocal();
-        System.out.println("init: HDFS数据成功同步到本地");
+    @Autowired
+    private Semaphore semaphore;
+
+    public void initLocalToHDFS() throws IOException {
         fileList = syncFileToHDFS.getAllLocalFile(dirPath.getLocalPath());
         System.out.println("init：初始化fileList成功，当前文件列表："+fileList);
         for(String filePath:fileList){
@@ -38,18 +41,23 @@ public class CheckFile extends Thread{
                 syncFileToHDFS.putFile(filePath);
             }
         }
+        System.out.println("init: 本地数据成功同步到HDFS");
     }
 
     @Override
     public void run(){
         try {
+            semaphore.acquire();
             checkLocalFileChange();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            semaphore.release();
         }
+
     }
 
-    //同步HDFS数据到本地
+/*    //同步HDFS数据到本地
     public void CheckHDFSFileWithLocal() throws IOException {
         RemoteIterator<LocatedFileStatus> allFile = syncFileToHDFS.getAllHDFSFile("/");
         while (allFile.hasNext()){
@@ -60,7 +68,7 @@ public class CheckFile extends Thread{
             if(!localFileExists)
                 syncFileToHDFS.getFromHDFS(filePath);
         }
-    }
+    }*/
     //同步本地数据到HDFS
     public void checkLocalFileChange() throws IOException {
         List<String> allLocalFile = syncFileToHDFS.getAllLocalFile(dirPath.getLocalPath());
@@ -70,13 +78,20 @@ public class CheckFile extends Thread{
                 fileList.add(localFile);
             }
         }
+        List<String> removeList = new LinkedList<>();
         if(allLocalFile.size() != fileList.size()){
             for(String fileFromList:fileList){
                 if(!allLocalFile.contains(fileFromList)){
                     syncFileToHDFS.deleteFile(fileFromList);
-                    fileList.remove(fileFromList);
+                    removeList.add(fileFromList);
                 }
             }
+        }
+        if(removeList.size() != 0){
+            for(String removePath:removeList){
+                fileList.remove(removePath);
+            }
+            removeList = null;
         }
         System.out.println("本地数据同步到HDFS完成，当前文档数量为>> "+allLocalFile.size());
 

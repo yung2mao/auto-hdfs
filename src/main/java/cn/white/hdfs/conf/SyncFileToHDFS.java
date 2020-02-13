@@ -77,6 +77,7 @@ public class SyncFileToHDFS {
         FSDataOutputStream out = fileSystem.create(new Path(hdfsFilePath));
         FileInputStream in = new FileInputStream(localFilePath);
         IOUtils.copyBytes(in,out,configuration);
+        System.out.println("上传成功，文件上传路径为>>"+hdfsFilePath);
         in.close();
     }
 

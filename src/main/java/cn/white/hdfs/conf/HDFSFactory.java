@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author GrainRain
@@ -39,5 +40,10 @@ public class HDFSFactory {
     @Bean
     public ScheduledExecutorService getScheduledExecutorService(){
         return Executors.newScheduledThreadPool(5);
+    }
+
+    @Bean
+    public Semaphore getSemaphore(){
+        return new Semaphore(1);
     }
 }
