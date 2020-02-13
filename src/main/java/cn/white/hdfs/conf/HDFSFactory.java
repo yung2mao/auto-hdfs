@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author GrainRain
@@ -25,5 +27,10 @@ public class HDFSFactory {
             e.printStackTrace();
             throw new RuntimeException();
         }
+    }
+
+    @Bean("fileList")
+    public List<String> fileList(){
+        return new LinkedList<String>();
     }
 }
