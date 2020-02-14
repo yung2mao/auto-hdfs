@@ -109,7 +109,7 @@ public class SyncFileToHDFS {
         return locatedFileStatusRemoteIterator;
     }
 
-    //获取本地目录的所有文件
+
     private List<String> getLocalFiles(String localDirPath){
         File f = new File(localDirPath);
         File[] files = f.listFiles();
@@ -126,6 +126,7 @@ public class SyncFileToHDFS {
         allLocalFiles.clear();
     }
 
+    //获取本地目录的所有文件
     public List<String> getAllLocalFile(String localDirPath){
         List<String> localFiles = new LinkedList<>(getLocalFiles(localDirPath));
         this.clearList();
