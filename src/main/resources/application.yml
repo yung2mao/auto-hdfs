@@ -4,4 +4,4 @@ hdfs:
   address: hdfs://10.42.52.16:9000
   localPath: /Users/taixian/Documents/BIG/hdfs
   localCheckTime: 5
-  hdfsCheckTime: 300
+  hdfsCheckTime: 30

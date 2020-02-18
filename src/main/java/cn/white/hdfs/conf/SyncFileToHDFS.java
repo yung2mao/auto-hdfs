@@ -64,7 +64,7 @@ public class SyncFileToHDFS {
             throw new RuntimeException("路径为>>"+localFilePath+"<<的本地文件不存在");
         //获取在hdfs上的路径
         String hdfsFilePath = localFilePath.substring(localPath.length());
-        System.out.println("上传本地文件到hdfs，本地路径为："+localFilePath+"hdfs路径为："+hdfsFilePath);
+        System.out.println("上传本地文件到hdfs，本地路径为>>"+localFilePath+"<<  hdfs路径为>>"+hdfsFilePath);
         if(hdfsFileExists(hdfsFilePath))
             throw new RuntimeException("路径为>>"+hdfsFilePath+"<<的hdfs文件已存在");
         String dirPath = hdfsFilePath.substring(0,hdfsFilePath.lastIndexOf("/"));

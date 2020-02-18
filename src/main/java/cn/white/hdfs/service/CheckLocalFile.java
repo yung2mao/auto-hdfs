@@ -31,7 +31,7 @@ public class CheckLocalFile extends Thread{
     private Semaphore semaphore;
 
     public void initLocalToHDFS() throws IOException {
-        fileList = syncFileToHDFS.getAllLocalFile(dirPath.getLocalPath());
+        fileList.addAll(syncFileToHDFS.getAllLocalFile(dirPath.getLocalPath()));
         System.out.println("init：初始化fileList成功，当前文件列表："+fileList);
         for(String filePath:fileList){
             String hdfsFilePath = filePath.substring(dirPath.getLocalPath().length());
@@ -91,7 +91,7 @@ public class CheckLocalFile extends Thread{
             }
             removeList = null;
         }
-        System.out.println("本地数据同步到HDFS完成，当前文档数量为>> "+allLocalFile.size());
+        System.out.println("本地数据同步到HDFS完成，当前文档数量为>> "+fileList.size());
 
     }
 }

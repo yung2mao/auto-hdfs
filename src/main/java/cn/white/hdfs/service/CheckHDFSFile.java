@@ -5,9 +5,12 @@ import cn.white.hdfs.conf.SyncFileToHDFS;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -25,6 +28,10 @@ public class CheckHDFSFile extends Thread{
     @Autowired
     private Semaphore semaphore;
 
+    @Autowired
+    @Qualifier("fileList")
+    private List<String> fileList;
+
     @Override
     public void run(){
         try {
@@ -40,16 +47,23 @@ public class CheckHDFSFile extends Thread{
     //同步HDFS数据到本地
     public void CheckHDFSFileWithLocal() throws IOException {
         RemoteIterator<LocatedFileStatus> allFile = syncFileToHDFS.getAllHDFSFile("/");
-        int count = 0;
+        List<String> addToLocalList = new LinkedList<>();
         while (allFile.hasNext()){
-            count ++;
             String hdfsFilePath = allFile.next().getPath().toString();
-            String filePath = "/"+hdfsFilePath.substring(dirPath.getHdfsAddress().length()+1);
+            String filePath = hdfsFilePath.substring(dirPath.getHdfsAddress().length());
             String localFilePath = dirPath.getLocalPath() + filePath;
             boolean localFileExists = syncFileToHDFS.localFileExists(localFilePath);
-            if(!localFileExists)
+            if(!localFileExists) {
                 syncFileToHDFS.getFromHDFS(filePath);
+                addToLocalList.add(localFilePath);
+            }
         }
-        System.out.println("HDFS数据成功同步到本地，当前文档数量为>> "+count);
+        if(fileList.size() != 0) {
+            for (String addPath : addToLocalList) {
+                fileList.add(addPath);
+            }
+        }
+        addToLocalList = null;
+        System.out.println("HDFS数据成功同步到本地，当前文档数量为>> "+fileList.size());
     }
 }
